@@ -1,0 +1,5 @@
+Release Timings
+35472 347898375840389362
+50933 347898375840389362
+
+I think the time difference makes sense since col-major is more likely to result in cache misses due to the fact that there's a big difference memory-address wise in the position between the 1st element of the column, the 2nd, and so on. I don't know how the cache policy of modern CPU's work exactly but I would imagine that this is because of spacial locality, and the difference probably wouldn't be as big or exist at all for small matrices.

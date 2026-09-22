@@ -11,25 +11,31 @@ int main() {
 
     // Test 1: Row Major Traversal
     Timer timer{};
-    std::array<std::array<int, g_arraySize>, g_arraySize> rowMajorMatrix{};
+    std::vector<uint64_t> rowMajorMatrix(g_arraySize * g_arraySize, 0);
+    uint64_t sum{};
     timer.restart();
     for (int i{0}; i < g_arraySize; i++) {
         for (int j{0}; j < g_arraySize; j++) {
-            rowMajorMatrix[i][j] = rng();
+            uint64_t num{rng()};
+            rowMajorMatrix[(i * g_arraySize) + j] = num;
+            sum += num;
         }
     }
-    std::cout << "Row Major Traversal: " << timer.glance<Timer::Micros>() << '\n';
+    std::cout << timer.glance<Timer::Micros>() << ' ' << sum << '\n';
 
     // Test 2: Col Major Traversal
     rng.seed(0);
-    std::array<std::array<int, g_arraySize>, g_arraySize> colMajorMatrix{};
+    std::vector<uint64_t> colMajorMatrix(g_arraySize * g_arraySize, 0);
+    sum = 0;
     timer.restart();
     for (int i{0}; i < g_arraySize; i++) {
         for (int j{0}; j < g_arraySize; j++) {
-            colMajorMatrix[j][i] = rng();
+            uint64_t num{rng()};
+            colMajorMatrix[(j * g_arraySize) + i] = num;
+            sum += num;
         }
     }
-    std::cout << "Col Major Traversal: " << timer.glance<Timer::Micros>() << '\n';
+    std::cout << timer.glance<Timer::Micros>() << ' ' << sum << '\n';
 
 }
 
