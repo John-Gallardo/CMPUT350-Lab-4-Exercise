@@ -7,7 +7,7 @@
 constexpr int g_arraySize{4000};
 
 int main() {
-    std::mt19937_64 rng(0);  // TODO: segfaults here for some reason SPECIFICALLY for debug
+    std::mt19937_64 rng(0);
 
     // Test 1: Row Major Traversal
     Timer timer{};
