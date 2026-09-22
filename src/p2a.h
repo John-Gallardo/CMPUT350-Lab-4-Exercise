@@ -28,13 +28,10 @@ inline uint64_t expand(uint64_t input, uint32_t scale) {
 }
 
 inline uint64_t morton3d(uint64_t x, uint64_t y, uint64_t z) {
-    // no need to bitshift x
-    y <<= 1;
-    z <<= 2;
-
-    uint64_t expandedX{expand(x, 3)};  // scale == d == 3
-    uint64_t expandedY{expand(y, 3)}; 
-    uint64_t expandedZ{expand(z, 3)}; 
+    // scale == d == 3
+    uint64_t expandedX{expand(x, 3)};
+    uint64_t expandedY{expand(y, 3) << 1}; 
+    uint64_t expandedZ{expand(z, 3) << 2}; 
     return expandedX | expandedY | expandedZ;
 }
 
