@@ -8,7 +8,7 @@
 constexpr int g_arraySize{256};
 constexpr int g_kernelSize{4};
 constexpr int g_stride{4};
-constexpr int g_convolutionSize{(g_arraySize - g_kernelSize) / 4 + 1}; 
+constexpr int g_convolutionSize{(g_arraySize - g_kernelSize) / 4 + 1};   // formula from lab description
 
 size_t rowMajorIndexA(size_t x, size_t y, size_t z) {
     // this should be the correct formula?
@@ -69,7 +69,6 @@ int main() {
     // time convolutions
     Timer timer{};
 
-    // formula from lab description
     std::vector<uint64_t> convolutionA(g_convolutionSize * g_convolutionSize * g_convolutionSize, 0);
     timer.restart();
     // outer 3 loops -> iterate through every convolution slot
@@ -92,53 +91,25 @@ int main() {
     }
     std::cout << timer.glance<Timer::Micros>() << '\n';
 
-    /*
-    for (int i{0}; i < g_kernelSize; i++) {
-        for (int j{0}; j < g_kernelSize; j++) {
-            for (int k{0}; j < g_kernelSize; k++) {
-                size_t convolutionIndex{rowMajorIndexConv(i, j, k)};
-                // inner 3 for loops -> for convolution
+    std::vector<uint64_t> convolutionB(g_convolutionSize * g_convolutionSize * g_convolutionSize, 0);
+    timer.restart();
+    // NOTE: lab description says this can be done with a double-nested loop but IDK how
+    for (int i{0}; i < g_convolutionSize; i++) {
+        for (int j{0}; j < g_convolutionSize; j++) {
+            for (int k{0}; k < g_convolutionSize; k++) {
+                uint64_t convolutionValue{0};
                 for (int a{0}; a < g_kernelSize; a++) {
                     for (int b{0}; b < g_kernelSize; b++) {
                         for (int c{0}; c < g_kernelSize; c++) {
-                            convolutionA[convolutionIndex] += rowMajorArray[rowMajorIndexA(i, j, k) + rowMajorIndexA(a, b, c)] * rowMajorKernel[convolutionIndex];
+                            convolutionValue += mortonArray[morton3d(i + a, j + b, k + c)] * mortonKernel[(a * g_kernelSize * g_kernelSize) + (b * g_kernelSize) + c];
                         }
                     }
                 }
+                convolutionB[rowMajorIndexConv(i, j, k)] = convolutionValue;
             }
         }
     }
     std::cout << timer.glance<Timer::Micros>() << '\n';
-
-    std::vector<uint64_t> convolutionB(convolutionSize * convolutionSize * convolutionSize, 0); 
-    timer.restart();
-    for (int i{0}; i < g_kernelSize; i++) {
-        for (int j{0}; j < g_kernelSize; j++) {
-            for (int k{0}; k < g_kernelSize; k++) {
-                size_t convolutionIndex{rowMajorIndexConv(i, j, k)};
-                // inner 3 for loops -> for convolution
-                for (int a{0}; a < g_kernelSize; a++) {
-                    for (int b{0}; b < g_kernelSize; j++) {
-                        for (int c{0}; c < g_kernelSize; c++) {
-                            convolutionB[convolutionIndex] += mortonArray[morton3d(i, j, k) + morton3d(a, b, c)] * mortonKernel[convolutionIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    std::cout << timer.glance<Timer::Micros>() << '\n';
-
-    // assert convolutions are equal
-    for (int i{0}; i < g_kernelSize; i++) {
-        for (int j{0}; j < g_kernelSize; j++) {
-            for (int k{0}; k < g_kernelSize; k++) {
-                size_t convolutionIndex{rowMajorIndexConv(i, j, k)};
-                assert(convolutionA[convolutionIndex] == convolutionB[convolutionIndex]);
-            }
-        }
-    }
-    */
 
     return 0;
 }
