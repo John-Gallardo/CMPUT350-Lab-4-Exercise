@@ -8,6 +8,7 @@
 constexpr int g_arraySize{256};
 constexpr int g_kernelSize{4};
 constexpr int g_stride{4};
+constexpr int g_convolutionSize{(g_arraySize - g_kernelSize) / 4 + 1}; 
 
 size_t rowMajorIndexA(size_t x, size_t y, size_t z) {
     // this should be the correct formula?
@@ -19,8 +20,7 @@ size_t rowMajorIndexK(size_t x, size_t y, size_t z) {
 }
 
 size_t rowMajorIndexConv(size_t x, size_t y, size_t z) {
-    // TODO: not sure if correct
-    return (x * g_kernelSize * g_kernelSize) + (y * g_kernelSize) + z;
+    return (x * g_convolutionSize * g_convolutionSize) + (y * g_convolutionSize) + z;
 }
 
 int main() {
@@ -69,11 +69,29 @@ int main() {
     // time convolutions
     Timer timer{};
 
-    // TODO: convolution is probably broken because of out of bounds indexing -> fix.
-    // convolution dimensions are completely wrong!!!
-    // not sure if convolution is even performed correctly as well...
-    //std::vector<uint64_t> convolutionA(
+    // formula from lab description
+    std::vector<uint64_t> convolutionA(g_convolutionSize * g_convolutionSize * g_convolutionSize, 0);
     timer.restart();
+    // outer 3 loops -> iterate through every convolution slot
+    for (int i{0}; i < g_convolutionSize; i++) {
+        for (int j{0}; j < g_convolutionSize; j++) {
+            for (int k{0}; k < g_convolutionSize; k++) {
+                // inner 3 loops -> compute our convolution dot product
+                uint64_t convolutionValue{0};
+                for (int a{0}; a < g_kernelSize; a++) {
+                    for (int b{0}; b < g_kernelSize; b++) {
+                        for (int c{0}; c < g_kernelSize; c++) {
+                            // NOTE: idk if this is correct
+                            convolutionValue += rowMajorArray[rowMajorIndexA(i + a, j + b, k + c)] * rowMajorKernel[(a * g_kernelSize * g_kernelSize) + (b * g_kernelSize) + c];
+                        }
+                    }
+                }
+                convolutionA[rowMajorIndexConv(i, j, k)] = convolutionValue;
+            }
+        }
+    }
+    std::cout << timer.glance<Timer::Micros>() << '\n';
+
     /*
     for (int i{0}; i < g_kernelSize; i++) {
         for (int j{0}; j < g_kernelSize; j++) {
@@ -92,7 +110,7 @@ int main() {
     }
     std::cout << timer.glance<Timer::Micros>() << '\n';
 
-    std::vector<uint64_t> convolutionB(g_kernelSize * g_kernelSize * g_kernelSize, 0);
+    std::vector<uint64_t> convolutionB(convolutionSize * convolutionSize * convolutionSize, 0); 
     timer.restart();
     for (int i{0}; i < g_kernelSize; i++) {
         for (int j{0}; j < g_kernelSize; j++) {
