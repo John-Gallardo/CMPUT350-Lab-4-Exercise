@@ -1,0 +1,5 @@
+Release build timings on the lab machine
+3695
+245386
+
+I think I messed up my convolution calculations with the morton matrix (and probably the row-major matrix too), since I would've expected the morton matrix to be faster because of the Z-memory layout (better spacial locality for cache -> less cache misses).
